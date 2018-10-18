@@ -13,22 +13,25 @@ namespace SIS.WebServer
     using HTTP.Sessions;
     using Results;
     using Routing;
+    using SIS.WebServer.Api;
+    using SIS.WebServer.Api.Contracts;
+    using System.IO;
 
     public class ConnectionHandler
     {
         private readonly Socket client;
 
-        private readonly ServerRoutingTable serverRoutingTable;
+        private readonly IHttpHandler httpHandler;
 
-        public ConnectionHandler(
-            Socket client,
-            ServerRoutingTable serverRoutingTable)
+        private const string RootDirectoryRelativePath = "../../..";
+
+        public ConnectionHandler(Socket client, IHttpHandler handler)
         {
             CoreValidator.ThrowIfNull(client, nameof(client));
-            CoreValidator.ThrowIfNull(serverRoutingTable, nameof(serverRoutingTable));
+            CoreValidator.ThrowIfNull(handler, nameof(handler));
 
             this.client = client;
-            this.serverRoutingTable = serverRoutingTable;
+            this.httpHandler = handler;
         }
 
         private async Task<IHttpRequest> ReadRequest()
@@ -62,16 +65,59 @@ namespace SIS.WebServer
             return new HttpRequest(result.ToString());
         }
 
-        private IHttpResponse HandleRequest(IHttpRequest httpRequest)
-        {
-            if (!this.serverRoutingTable.Routes.ContainsKey(httpRequest.RequestMethod)
-                || !this.serverRoutingTable.Routes[httpRequest.RequestMethod].ContainsKey(httpRequest.Path.ToLower()))
-            {
-                return new HttpResponse(HttpResponseStatusCode.NotFound);
-            }
+        //private IHttpResponse HandleRequest(IHttpRequest httpRequest)
+        //{
+        //    var isResourceRequest = this.isResourceRequest(httpRequest);
+        //    if (isResourceRequest)
+        //    {
+        //        return this.HandleRequestResponse(httpRequest.Path);
+        //    }
+        //    else
+        //    {
+        //        if (!this.serverRoutingTable.Routes.ContainsKey(httpRequest.RequestMethod)
+        //        || !this.serverRoutingTable.Routes[httpRequest.RequestMethod].ContainsKey(httpRequest.Path.ToLower()))
+        //        {
+        //            return new HttpResponse(HttpResponseStatusCode.NotFound);
+        //        }
+        //    }    
+        //    return this.serverRoutingTable.Routes[httpRequest.RequestMethod][httpRequest.Path].Invoke(httpRequest);
+        //}
 
-            return this.serverRoutingTable.Routes[httpRequest.RequestMethod][httpRequest.Path].Invoke(httpRequest);
-        }
+        //private IHttpResponse HandleRequestResponse(string httpRequestPath)
+        //{
+        //    var indexStartOfExtention = httpRequestPath.LastIndexOf(".");
+        //    var indexOfStartOfNameOfResource=httpRequestPath.LastIndexOf("/");
+        //    var requestPathExtention = httpRequestPath.Substring(indexStartOfExtention);
+
+        //    var resourceName = httpRequestPath
+        //        .Substring(indexOfStartOfNameOfResource);
+
+        //    var resourcePath=RootDirectoryRelativePath+"/Resources"+
+        //        $"/{requestPathExtention.Substring(1)}"+
+        //        resourceName;
+
+        //    if (!File.Exists(resourcePath))
+        //    {
+        //        return new HttpResponse(HttpResponseStatusCode.NotFound);
+        //    }
+        //    var fileContent = File.ReadAllBytes(resourcePath);
+
+        //    return new InlineResourceResult(fileContent, HttpResponseStatusCode.Ok);
+        //}
+
+        //private bool isResourceRequest(IHttpRequest httpRequest)
+        //{
+        //    var requestPath = httpRequest.Path;
+
+        //    if (requestPath.Contains("."))
+        //    {
+        //        var requestPathExtention = requestPath.Substring(requestPath.LastIndexOf("."));
+        //        return  GlobalConstants.ResourceExtentions.Contains(requestPathExtention);
+        //    }
+
+
+        //    return false;
+        //}
 
         private async Task PrepareResponse(IHttpResponse httpResponse)
         {
@@ -119,7 +165,7 @@ namespace SIS.WebServer
                 {
                     string sessionId = this.SetRequestSession(httpRequest);
 
-                    var httpResponse = this.HandleRequest(httpRequest);
+                    var httpResponse = this.httpHandler.Handle(httpRequest);
 
                     this.SetResponseSession(httpResponse, sessionId);
 

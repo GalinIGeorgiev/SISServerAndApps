@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using SIS.WebServer.Api.Contracts;
 using SIS.WebServer.Routing;
 
 namespace SIS.WebServer
@@ -14,16 +15,16 @@ namespace SIS.WebServer
 
         private readonly TcpListener listener;
 
-        private readonly ServerRoutingTable serverRoutingTable;
+        private readonly IHttpHandler httpHandler;
 
         private bool isRunning;
 
-        public Server(int port, ServerRoutingTable serverRoutingTable)
+        public Server(int port, IHttpHandler httpHandler)
         {
             this.port = port;
             this.listener = new TcpListener(IPAddress.Parse(LocalhostIpAddress), port);
 
-            this.serverRoutingTable = serverRoutingTable;
+            this.httpHandler = httpHandler;
         }
 
         public void Run()
@@ -31,10 +32,10 @@ namespace SIS.WebServer
             this.listener.Start();
             this.isRunning = true;
 
-            Console.WriteLine($"Server started at http://{LocalhostIpAddress}:{this.port}");
+            Console.WriteLine($"Server started listening at: http://{LocalhostIpAddress}:{this.port}");
             while (isRunning)
             {
-                Console.WriteLine("Waiting for client...");
+                //Console.WriteLine("Waiting for client...");
 
                 var client = listener.AcceptSocketAsync().GetAwaiter().GetResult();
 
@@ -44,7 +45,7 @@ namespace SIS.WebServer
 
         public async void Listen(Socket client)
         {
-            var connectionHandler = new ConnectionHandler(client, this.serverRoutingTable);
+            var connectionHandler = new ConnectionHandler(client, this.httpHandler);
             await connectionHandler.ProcessRequestAsync();
         }
     }

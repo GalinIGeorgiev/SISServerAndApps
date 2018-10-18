@@ -1,0 +1,22 @@
+<h1>Create Track</h1>
+
+<hr />
+
+<form action="/tracks/create?albumId=@Model.AlbumId" method="post">
+    <label>Name </label>
+    <input type="text" name="name" placeholder="Name..."/>
+    <br />
+    <label>Link </label>
+    <input type="text" name="link" placeholder="Link..."/>
+    <br />
+    <label>Price </label>
+    <input type="number" step=".01" name="price" placeholder="Price..."/>
+    
+    <br />
+
+    <input type="submit" value="Create"/>
+</form>
+
+<hr />
+
+<a href="/albums/details?id=@Model.AlbumId">Back to Album</a>
