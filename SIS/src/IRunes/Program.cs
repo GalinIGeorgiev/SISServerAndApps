@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Reflection;
 using IRunes.Controllers;
+using SIS.Framework;
+using SIS.Framework.Routers;
 using SIS.HTTP.Enums;
 using SIS.WebServer;
 using SIS.WebServer.Api;
 using SIS.WebServer.Results;
 using SIS.WebServer.Routing;
 
-namespace CakesWebApp
+namespace IRunes
 {
     class Program
     {
@@ -14,8 +17,9 @@ namespace CakesWebApp
         {
             var serverRoutingTable = new ServerRoutingTable();
 
-            var handler = new HttpHandler(serverRoutingTable);
+            var handler = new ControllerRouter();
 
+            MvcContext.Get.AssemblyName = Assembly.GetExecutingAssembly().GetName().Name;
             ConfigureRoutes(serverRoutingTable);
 
             var server = new Server(80, handler);

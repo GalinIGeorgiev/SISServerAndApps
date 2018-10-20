@@ -1,13 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <ApplicationIcon />
-    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SIS.Framework\SIS.Framework.csproj" />
     <ProjectReference Include="..\SIS.WebServer\SIS.WebServer.csproj" />
   </ItemGroup>
 

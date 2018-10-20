@@ -1,6 +1,7 @@
 ﻿using CakesWebApp.Services;
 using IRunes.Data;
 using IRunes.Extensions;
+using SIS.Framework.Controllers;
 using SIS.HTTP.Enums;
 using SIS.HTTP.Requests;
 using SIS.HTTP.Responses;
@@ -14,7 +15,7 @@ using System.Text;
 
 namespace IRunes.Controllers
 {
-    public abstract class BaseController
+    public abstract class BaseController:Controller
     {
         private const string FolderPath = "../../../Views/";
 

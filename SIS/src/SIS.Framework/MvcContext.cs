@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace SIS.Framework
@@ -9,7 +10,7 @@ namespace SIS.Framework
         private static MvcContext Instance;
 
         private MvcContext() { }
-        public static MvcContext GetInstance => Instance == null ? (Instance = new MvcContext()) : Instance;
+        public static MvcContext Get => Instance == null ? (Instance = new MvcContext()) : Instance;
 
         public string AssemblyName { get; set; }
 
